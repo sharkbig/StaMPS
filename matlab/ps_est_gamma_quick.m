@@ -241,22 +241,22 @@ while loop_end_sw==0
         logit('Estimating topo error...')
         step_number=2;
 
-        for i=1:n_ps
-            psdph=ph(i,:).*conj(ph_patch(i,:));
-            if sum(psdph==0)==0  % insist on a non-null value in every ifg
-                [Kopt,Copt,cohopt,ph_residual]=ps_topofit(psdph,bp.bperp_mat(i,:)',n_trial_wraps,'n');
-                K_ps(i)=Kopt(1);
-                C_ps(i)=Copt(1);
-                coh_ps(i)=cohopt(1);
-                N_opt(i)=length(Kopt);
-                ph_res(i,:)=angle(ph_residual);
-            else
-                K_ps(i)=nan;
-                coh_ps(i)=0;
-            end
-            if i/100000==floor(i/100000)
-                logit(sprintf('%d PS processed',i),2)
-            end
+        bk_size=100000;
+        for i=1:bk_size:n_ps
+            ni=i+bk_size-1;
+            if ni>n_ps
+                ni=n_ps;
+            end 
+        
+            psdph=ph(i:ni,:).*conj(ph_patch(i:ni,:));
+            bperp=bp.bperp_mat(i:ni,:); 
+            [Kopt,Copt,cohopt,ph_residual]=ps_topofit_vectorize(psdph,bperp,n_trial_wraps);
+            K_ps(i:ni)=Kopt;
+            C_ps(i:ni)=Copt;
+            coh_ps(i:ni)=cohopt;
+            N_opt(i:ni)=1;
+            ph_res(i:ni,:)=angle(ph_residual);
+            logit(sprintf('%d PS processed',ni),2)
         end
         
 
