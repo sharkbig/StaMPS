@@ -222,7 +222,8 @@ while loop_end_sw==0
     end
     
     for i=1:n_ifg
-        ph_filt(:,:,i)=clap_filt(ph_grid(:,:,i),clap_alpha,clap_beta,n_win*0.75,n_win*0.25,low_pass);
+        % ph_filt(:,:,i)=clap_filt(ph_grid(:,:,i),clap_alpha,clap_beta,n_win*0.75,n_win*0.25,low_pass);
+        ph_filt(:,:,i)=clap_filt_mex(ph_grid(:,:,i),clap_alpha,clap_beta,n_win*0.75,n_win*0.25,low_pass);
     end
         
     for i=1:n_ps
