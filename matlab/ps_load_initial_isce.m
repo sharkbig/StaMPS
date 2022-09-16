@@ -50,9 +50,17 @@ lasavename=['la',num2str(psver)];
 matlab_version = version('-release');           % [DB] getting the matlab version
 matlab_version = str2num(matlab_version(1:4));  % [DB] the year
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% code that prevent slc not generate error
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~exist(dayname,'file')
     dayname= ['../',dayname];
 end
+
 day=load(dayname);
 year=floor(day/10000);
 month=floor((day-year*10000)/100);
@@ -138,7 +146,6 @@ if exist(calname,'file')
 else
     calconst=ones(n_ifg-1,1);
 end
-
 fid=fopen(phname,'r');
 ph=zeros(n_ps,n_ifg-1,'single');
 byte_count=n_ps*2;
