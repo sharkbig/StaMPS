@@ -27,8 +27,7 @@ if nargin<6 | isempty(low_pass)
 end
 
 
-
-ph_out=zeros(size(ph));
+ph_out=zeros(size(ph))+0i;
 [n_i,n_j]=size(ph);
 
 n_inc=floor(n_win/4);
@@ -46,7 +45,7 @@ wind_func=wind_func+1e-6; % so doesn't go to zero in corners
 ph(isnan(ph))=0;
 B=gausswin(7)*gausswin(7)';
 n_win_ex=n_win+n_pad;
-ph_bit=zeros(n_win_ex);
+ph_bit=zeros(n_win_ex)+0i;
 
 for ix1=1:n_win_i
     wf=wind_func;
@@ -82,9 +81,9 @@ for ix1=1:n_win_i
         G=H*beta+low_pass;
         ph_filt=ifft2(ph_fft.*G);
         ph_filt=ph_filt(1:n_win,1:n_win).*wf2;
-        if isnan(ph_filt(1,1))
-            keyboard
-        end
+        % if isnan(ph_filt(1,1))
+        %     keyboard
+        % end
         ph_out(i1:i2,j1:j2)=ph_out(i1:i2,j1:j2)+ph_filt;
     end
 end
