@@ -287,13 +287,12 @@ if reest_flag~=1
     j_max(msk)=n_j;
 
 
-    % remove the pixel for which the smoothign is computed
+    % remove the pixel for which the smoothing is computed
     ps_bit_i=ps_ij(:,1)-i_min+1;
     ps_bit_j=ps_ij(:,2)-j_min+1;
     ph_grid=pm.ph_grid;
     low_pass=pm.low_pass;
     B=gausswin(7)*gausswin(7)';
-
     parfor k=1:n_ps
         ph_bit=ph_grid(i_min(k):i_max(k), j_min(k):j_max(k),:);
         ph_bit(ps_bit_i(k),ps_bit_j(k),:)=0;
@@ -306,42 +305,8 @@ if reest_flag~=1
         ix_j=ix_j(ix_j>0&ix_j<=size(ph_bit,2));
         ph_bit(ix_i,ix_j)=0;
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%%%%% Clap_filt_patch.m %%%%%%%
-        ph_bit(isnan(ph_bit))=0;
-
-        ph_fft=fft(ph_bit,[],1);
-        ph_fft=fft(ph_fft,[],2);
-
-        H=abs(ph_fft);
-        H=fftshift(H,1);
-        H=fftshift(H,2); 
-        
-        for i=1:n_ifg
-            H(:,:,i)=filter2(B,H(:,:,i));
-        end
-        H=ifftshift(H,1);
-        H=ifftshift(H,2);
-        
-        meanH=squeeze(median(H,[1 2]));
-        meanH(meanH==0)=1;
-        [a b c]=size(H);
-        meanH(meanH==0)=1;
-        meanH=repmat(meanH,1,1,a*b);
-        meanH=reshape(permute(meanH,[3 1 2]),[a b c]);
-        H=H./meanH;
-
-        H=H.^clap_alpha;
-        H=H-1;
-        H(H<0)=0;
-        G=H.*clap_beta+low_pass;
-        
-        phout=ph_fft.*G;   
-        phout=ifft(phout,[],1);
-        ph_filt=ifft(phout,[],2);        
-
+        ph_filt=clap_filt_patch_3d_mex(ph_bit,clap_alpha,clap_beta,pm.low_pass);
         ph_patch2(k,:)=squeeze(ph_filt(ps_bit_i(k),ps_bit_j(k),:));
-        
         
         if k/10000==floor(k/10000)
             logit(sprintf('%d patches re-estimated',k))
