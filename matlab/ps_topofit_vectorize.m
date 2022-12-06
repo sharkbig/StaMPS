@@ -24,14 +24,16 @@ n_ifg=size(cpxphase,2);
 bk_size=size(cpxphase,1);
 
 bperp_range=max(bperp,[],2)-min(bperp,[],2);
+trial_phase=pi/4*bperp.*(1./bperp_range);
+
 trial_mult=[-ceil(8*n_trial_wraps):ceil(8*n_trial_wraps)]+asym*8*n_trial_wraps;
 n_trials=length(trial_mult);
-trial_phase=pi/4*bperp.*(1./bperp_range);
-cpxmat=exp(kron(-j*trial_phase,trial_mult));
-cpxmat=reshape(transpose(cpxmat),n_trials,n_ifg,bk_size);
-cpxmat=permute(cpxmat,[3 2 1]);
-phaser=cpxmat.*cpxphase;
-phaser_sum=squeeze(sum(phaser,2));
+
+cpxmat=exp(-j*kron(trial_phase,trial_mult));
+cpxmat=reshape(cpxmat,bk_size,n_ifg,n_trials);
+
+% phaser=cpxmat.*cpxphase;
+phaser_sum=squeeze(sum(cpxmat.*cpxphase,2));
 
 coh_trial=abs(phaser_sum)./sum(abs(cpxphase),2);
 [dummy,coh_max_ix]=max(coh_trial,[],2);
