@@ -32,9 +32,13 @@ trial_mult=[-ceil(8*n_trial_wraps):ceil(8*n_trial_wraps)]+asym*8*n_trial_wraps;
 n_trials=length(trial_mult);
 trial_phase=bperp/bperp_range*pi/4;
 trial_phase_mat=exp(-j*trial_phase*trial_mult);
-cpxphase_mat=repmat(cpxphase,1,n_trials);
-phaser=trial_phase_mat.*cpxphase_mat;
-phaser_sum=sum(phaser);
+% cpxphase_mat=repmat(cpxphase,1,n_trials);
+% phaser=trial_phase_mat.*cpxphase_mat;
+% phaser_sum=sum(phaser)
+
+% faster and memory saving
+phaser_sum=conj(cpxphase')*trial_phase_mat;
+
 C_trial=angle(phaser_sum);
 coh_trial=abs(phaser_sum)/sum(abs(cpxphase));
 
