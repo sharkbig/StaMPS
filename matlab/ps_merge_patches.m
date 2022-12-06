@@ -390,6 +390,7 @@ end
     if grid_size==0
     %overlap_ij=ps.ij(~ix,:);
       if exist(['./',phuwname,'.mat'],'file')
+        disp('if phuw2.mat is already in some PATCH_* directory, some errs may happend.')
         phuw=load(phuwname);
         if ~isempty(C)
             ph_uw_diff=mean(phuw.ph_uw(IA,:)-ph_uw(IB,:),1);
@@ -399,6 +400,7 @@ end
         else
             ph_uw_diff=zeros(1,size(phuw.ph_uw,2));
         end
+        phuw
         ph_uw=[ph_uw;phuw.ph_uw(ix,:)-repmat(ph_uw_diff,sum(ix),1)];
         clear phuw
       else
