@@ -12,7 +12,7 @@ function [K0,C0,coh0,phase_residual]=ps_topofit_vectorize(cpxphase,bperp,n_trial
 %   ==========================================================
 % 
 %  Jun-Yan Chen
-%   08/2022 JY: make the code vectorize to speed up,
+%   08/2022 JC: make the code vectorize to speed up,
 %               remove plot flag
     
 
@@ -29,16 +29,18 @@ trial_phase=pi/4*bperp.*(1./bperp_range);
 trial_mult=[-ceil(8*n_trial_wraps):ceil(8*n_trial_wraps)]+asym*8*n_trial_wraps;
 n_trials=length(trial_mult);
 
-cpxmat=exp(-j*kron(trial_phase,trial_mult));
-cpxmat=reshape(cpxmat,bk_size,n_ifg,n_trials);
+cpxmat=exp(-j*kron(trial_phase',trial_mult));
+cpxmat=reshape(cpxmat,n_ifg,n_trials,bk_size);
+cpxmat=permute(cpxmat,[3 1 2]);
 
-% phaser=cpxmat.*cpxphase;
-phaser_sum=squeeze(sum(cpxmat.*cpxphase,2));
+phaser=cpxmat.*cpxphase;
+phaser_sum=squeeze(sum(phaser,2));
 
 coh_trial=abs(phaser_sum)./sum(abs(cpxphase),2);
 [dummy,coh_max_ix]=max(coh_trial,[],2);
 
 K0=pi/4./bperp_range.*trial_mult(coh_max_ix)';
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% linearise and solve %%%
@@ -48,13 +50,6 @@ resphase=cpxphase.*exp(-j*(K0.*bperp));
 offset_phase=sum(resphase,2);
 resphase=angle(resphase.*conj(offset_phase));
 weighting=abs(cpxphase);
-K_copy=K0;
-
-
-% for k=1:bk_size
-%     mopt=double(weighting(k,:).*bperp(k,:))'\double(weighting(k,:).*resphase(k,:))';
-%     K0(k)=K0(k)+mopt;
-% end
 
 % To find one K that minimize[sum((ph_i-K*bperp_i)^2)] 
 % is to calculate the derivate equals to zeros.
