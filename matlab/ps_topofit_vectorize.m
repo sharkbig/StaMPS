@@ -48,11 +48,22 @@ resphase=cpxphase.*exp(-j*(K0.*bperp));
 offset_phase=sum(resphase,2);
 resphase=angle(resphase.*conj(offset_phase));
 weighting=abs(cpxphase);
-%%%% no piese-wise inversion function %%%%
-for k=1:bk_size
-    mopt=double(weighting(k,:).*bperp(k,:))'\double(weighting(k,:).*resphase(k,:))';
-    K0(k)=K0(k)+mopt;
-end
+K_copy=K0;
+
+
+% for k=1:bk_size
+%     mopt=double(weighting(k,:).*bperp(k,:))'\double(weighting(k,:).*resphase(k,:))';
+%     K0(k)=K0(k)+mopt;
+% end
+
+% To find one K that minimize[sum((ph_i-K*bperp_i)^2)] 
+% is to calculate the derivate equals to zeros.
+% K = sum(ph_i*bperp_i)/sum(bperp_i^2)
+w_bperp=weighting.*bperp;
+w_resph=weighting.*resphase;
+mopt=sum(w_bperp.*w_resph,2)./sum(w_bperp.^2,2);
+K0=K0+mopt;
+clear w_bperp w_resph
 
 phase_residual=cpxphase.*exp(-j*(K0.*bperp));
 mean_phase_residual=sum(phase_residual,2);
