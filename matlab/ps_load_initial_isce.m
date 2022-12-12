@@ -122,7 +122,7 @@ if exist(calname,'file')
     for i = 1 : length(calfile)
         aa=strread(calfile{i},'%s','delimiter','/');
         if aa{end} == "reference.slc"
-            bb=str2num(aa{end-2}(end-7:end));
+            bb=str2num(aa{end-2}(7:14));
         else
             bb=str2num(aa{end-1}(1:8));
         end
@@ -136,6 +136,7 @@ if exist(calname,'file')
         %         bb=str2num(aa{end-2}(end-7:end));
         %     end            
         % end
+        
         caldate(i)=bb;    
     end
     not_master_ix=caldate~=master_day_yyyymmdd;
