@@ -121,7 +121,7 @@ if exist(calname,'file')
     caldate=zeros(length(calfile),1);
     for i = 1 : length(calfile)
         aa=strread(calfile{i},'%s','delimiter','/');
-        if aa{end} == "reference.slc"
+        if regexp(aa{end},"reference.slc*")
             bb=str2num(aa{end-2}(7:14));
         else
             bb=str2num(aa{end-1}(1:8));
