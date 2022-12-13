@@ -29,9 +29,9 @@ trial_phase=pi/4*bperp.*(1./bperp_range);
 trial_mult=[-ceil(8*n_trial_wraps):ceil(8*n_trial_wraps)]+asym*8*n_trial_wraps;
 n_trials=length(trial_mult);
 
-cpxmat=exp(-j*kron(trial_phase',trial_mult));
-cpxmat=reshape(cpxmat,n_ifg,n_trials,bk_size);
-cpxmat=permute(cpxmat,[3 1 2]);
+cpxmat=exp(-j*kron(trial_mult',trial_phase));
+cpxmat=reshape(cpxmat,bk_size,n_trials,n_ifg);
+cpxmat=permute(cpxmat,[1 3 2]);
 
 phaser=cpxmat.*cpxphase;
 phaser_sum=squeeze(sum(phaser,2));
