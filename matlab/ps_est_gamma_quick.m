@@ -165,11 +165,25 @@ else
     else
          rand_ifg=2*pi*rand(n_rand,n_ifg);
     end
-    for i=n_rand:-1:1      
-        [K_r,C_r,coh_r]=ps_topofit(exp(j*rand_ifg(i,:)),bperp,n_trial_wraps,'n');
-        coh_rand(i)=coh_r(1);
+    % coh_rand=squeeze(zeros(n_rand,1));
+    % for i=n_rand:-1:1   
+    %     [K_r,C_r,coh_r]=ps_topofit(exp(j*rand_ifg(i,:)),bperp,n_trial_wraps,'n');
+    %     coh_rand(i)=coh_r(1);
+    % end
+    nbatch=floor(16e9/64/n_ifg/(n_trial_wraps*8*2)/2);
+    logit(sprintf('gpuArray allocation size: %i',nbatch))
+    bperp_=gpuArray(repmat(bperp,1,nbatch)');
+    coh_rand=squeeze(zeros(n_rand,1));
+    for i=1:nbatch:n_rand
+        i2=min([i+nbatch-1 n_rand]);
+        bperp_=bperp_(1:i2-i+1,:);
+        rand_ph=gpuArray(exp(j*rand_ifg(i:i2,:)));
+        [K_r,C_r,coh_r]=ps_topofit_gpu(rand_ph,bperp_,n_trial_wraps);
+        coh_rand(i:i2)=gather(coh_r(:,1));
+        clear K_r C_r coh_r 
     end
-    clear rand_ifg
+    clear rand_ifg bperp_ rand_ph
+
     coh_bins=[0.005:0.01:0.995];
     Nr=hist(coh_rand,coh_bins); % distribution of random phase points
     i=length(Nr);
@@ -242,12 +256,11 @@ while loop_end_sw==0
         logit('Estimating topo error...')
         step_number=2;
 
-        bk_size=100000;
+        % bigger block size 100000 is recommended (?) 
+        bk_size=floor(30e6/64/n_ifg/(n_trial_wraps*8*2)/2)*1e3;
         for i=1:bk_size:n_ps
             ni=i+bk_size-1;
-            if ni>n_ps
-                ni=n_ps;
-            end 
+            ni=min([ni n_ps]);
         
             psdph=ph(i:ni,:).*conj(ph_patch(i:ni,:));
             bperp=bp.bperp_mat(i:ni,:); 
