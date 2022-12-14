@@ -14,6 +14,7 @@ function [K0,C0,coh0,phase_residual]=ps_topofit_vectorize(cpxphase,bperp,n_trial
 %  Jun-Yan Chen
 %   08/2022 JC: make the code vectorize to speed up,
 %               remove plot flag
+%   12/2022 JC: make the code unable to run on GPU device
     
 
 if nargin<4
